@@ -1,22 +1,40 @@
 module Terms where
 
-type Variable = String
 
-type TypeName = String
+type Name = String
 
-data ExprTy = 
-      LowerBound
-    | UpperBound
-    | Concrete      TypeName
+type Ix = Int
+type Lvl = Int
 
-    | TyAbs         Variable ExprTy ExprTy
-    | TyOf          Variable
-    | TyIns         ExprTy ExprTy
+data Raw
+  = RU                      -- U
+  | RVar Name               -- x
+  | RLam Name Raw           -- \x -> t
+  | RApp Raw Raw            -- t u
+  | RPi Name Raw Raw        -- (x:t) -> u
+  | RLet Name Raw Raw Raw   -- let x:t = u; v
 
 
-data ExprTm = 
-      Variable      Variable
-    | TyValue       ExprTy
-    | Abstr         Variable ExprTy ExprTm
-    | Apply         ExprTm ExprTm
+type Ty = Tm
+
+data Tm
+  = U
+  | Var Ix
+  | Lam Name Tm
+  | App Tm Tm
+  | Pi Name Tm Tm
+  | Let Name Tm Tm Tm
+
+
+type VTy = Val
+type Env = [Val]
+
+data Cls = Cls Env Tm
+
+data Val
+  = VU
+  | VVar Lvl
+  | VLam Name Cls
+  | VApp Val Val
+  | VPi Name VTy Cls
 
