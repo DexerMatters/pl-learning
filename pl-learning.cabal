@@ -25,12 +25,12 @@ source-repository head
 
 library
   exposed-modules:
-      Elaborator
+      Elab
       Eval
       Lib
-      Parsing
-      Terms
-      Utils
+      Raw
+      Term
+      Value
   other-modules:
       Paths_pl_learning
   autogen-modules:

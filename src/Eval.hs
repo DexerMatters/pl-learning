@@ -1,20 +1,30 @@
-{-# OPTIONS_GHC -Wno-missing-export-lists #-}
 {-# LANGUAGE LambdaCase #-}
 module Eval where
-import Terms
+
+import qualified Value as V (Val(..)) 
+import qualified Term as T (Tm(..)) 
+import Value (Env, Val, Closure (Closure), uni)
+import Term (Tm)
 
 
 eval :: Env -> Tm -> Val
-eval env = \case
-  U -> VU
-  Var x -> env !! x
-  Lam n t -> VLam n (Cls env t)
-  App t t' -> case (eval env t, eval env t') of
-                (VLam _ f, a) -> f $$ a
-                (f, a) -> VApp f a
-  Pi n ty t -> VPi n (eval env ty) (Cls env t)
-  Let _ _ t t' -> eval (eval env t:env) t'
+eval env = \case 
+  T.Bot -> V.Bot
+  T.Top -> V.Top
+  T.Uni -> uni
+  T.Cons ty ty' 
+    -> V.Cons (eval env ty) (eval env ty')
+  T.Var x -> env !! x
+  T.Lam n body
+    -> V.Lam n $ Closure env body
+  T.App f a -> case eval env f of
+    (V.Lam _ body) -> body $$ eval env a
+    other -> V.App other (eval env a)
+  T.Let _ _ t t'     -- let n:ty = t; t'
+    -> eval (eval env t:env) t'
+  T.Pi n ty ty'      -- (x:T) -> T'
+    -> V.Pi n (eval env ty) $ Closure env ty'
+      
 
-
-($$) :: Cls -> Val -> Val
-(Cls env u) $$ v = eval (v:env) u
+($$) :: Closure -> Val -> Val
+(Closure env tm) $$ v = eval (v:env) tm
