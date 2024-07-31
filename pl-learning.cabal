@@ -28,6 +28,7 @@ library
       Elab
       Eval
       Lib
+      Parser
       Raw
       Term
       Val

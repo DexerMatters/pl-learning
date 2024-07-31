@@ -4,7 +4,7 @@ module Raw where
 type Name = String
 
 data Tm
-  = Cast Ty Tm           -- (T)t
+  = Cast Ty Tm           -- [T]t
   | Var Name            -- x
   | Lam Name Tm         -- \x.t
   | Let Name Ty Tm Tm   -- let x : T = t in t'

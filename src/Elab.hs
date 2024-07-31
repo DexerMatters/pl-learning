@@ -37,6 +37,7 @@ bind n ty ctx = ctx {
 -- Subtyping ... (Judge conversibility of two types)
 -- Note : As validating extends the infomation of every type,
 --        there's no need for contexts to store relations
+infixl 8 <:
 (<:) :: T.Ty -> T.Ty -> Bool
 (<:) = curry $ \case
   (_, T.Top) -> True
@@ -45,6 +46,8 @@ bind n ty ctx = ctx {
     -> a' <: a && b <: b'
   (T.Path a b, T.Path a' b') -- narrowing
     -> a' <: a && b <: b'
+  (s, T.Path a b)
+    -> s <: b && a <: s 
   _ -> False
 
 valid :: Ctx -> R.Ty -> Result T.Ty
