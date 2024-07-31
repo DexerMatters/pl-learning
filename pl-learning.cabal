@@ -25,7 +25,12 @@ source-repository head
 
 library
   exposed-modules:
+      Elab
+      Eval
       Lib
+      Raw
+      Term
+      Val
   other-modules:
       Paths_pl_learning
   autogen-modules:
