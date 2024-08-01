@@ -10,7 +10,6 @@ data Tm                   -- t
   = Var Name              -- x
   | Lam Name Tm           -- \x.t
   | App Tm Tm             -- t t'
-  | Def Name Ty Tm        -- def T = T'; t'
   | Let Name Ty Tm Tm     -- let x:T = t ; t'
   
   | Top                   -- TOP

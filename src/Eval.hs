@@ -19,7 +19,7 @@ eval env = \case
     -> V.Lam n $ Closure env body
   T.App f a -> case eval env f of
     (V.Lam _ body) -> body $$ eval env a
-    other -> V.App other (eval env a)
+    _ -> error "Never reach"
   T.Let _ _ t t'     -- let n:ty = t; t'
     -> eval (eval env t:env) t'
   T.Pi n ty ty'      -- (x:T) -> T'

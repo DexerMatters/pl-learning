@@ -18,5 +18,3 @@ data Val                    -- t
   | Bot                     -- BOT
   | Cons Val Val            -- {T ... T'}
   | Pi Name Val Closure     -- (x:T) -> T'
-
-  | App Val Val
