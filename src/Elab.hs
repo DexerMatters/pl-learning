@@ -103,10 +103,6 @@ infer ctx = \case
   R.Def n ty scp -> do
     ty' <- valid ctx ty
     infer (def n ty' ctx) scp
-  R.Def' n a b  scp -> do
-    a' <- valid ctx a
-    b' <- valid ctx b
-    infer (def n (T.Free a' b') ctx) scp
     
   -- Application can only be valid when function is presented as Variable
   R.App f a -> do
