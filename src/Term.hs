@@ -10,6 +10,7 @@ data Tm
   | Lam Name Tm         -- \x.t
   | Let Name Ty Tm Tm   -- let x : T = t; t'
   | App Tm Tm           -- t t'
+  deriving Show
 
 
 data Ty
@@ -17,3 +18,4 @@ data Ty
   | Bot
   | Path Ty Ty    -- {A ... B}
   | Arro Ty Ty    -- T -> T'
+  deriving Show

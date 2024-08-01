@@ -9,7 +9,9 @@ data Tm
   | Lam Name Tm         -- \x.t
   | Let Name Ty Tm Tm   -- let x : T = t in t'
   | Def Name Ty Tm      -- def A = T; t
+  | Def' Name Ty Ty Tm  -- def A in T ... T'; t
   | App Tm Tm           -- t t'
+  deriving Show
 
 
 data Ty
@@ -22,3 +24,4 @@ data Ty
   {- Sugar -}
   | Iso Ty        -- {T ... T}
   | Poly          -- {Bot ... Top}
+  deriving Show

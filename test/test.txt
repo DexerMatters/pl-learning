@@ -1,0 +1,4 @@
+def T = X;
+def S = {T ... Top};
+let id:S -> T = \x.x;
+id

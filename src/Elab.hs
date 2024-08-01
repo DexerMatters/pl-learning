@@ -15,18 +15,25 @@ data Ctx = Ctx {
   lvl    :: Lvl
 }
 
+emptyCtx :: Ctx
+emptyCtx = Ctx [] [] 0
+
 data TypeError
   = BadConverison T.Ty T.Ty
+  | NotFromPath
   | NotAFunction
   | BadConstraint T.Ty T.Ty
   | UndefinedType Name
   | UnboundVariable Name
   | BadInference
+  deriving Show
 
 type Result = Either TypeError
 
 def :: Name -> T.Ty -> Ctx -> Ctx
-def n ty ctx = ctx { defs = (n, ty):defs ctx }
+def n ty ctx = ctx { 
+    defs = (n, ty):defs ctx 
+}
 
 bind :: Name -> T.Ty -> Ctx -> Ctx
 bind n ty ctx = ctx {
@@ -63,10 +70,9 @@ valid ctx = \case
   R.Arro a b -> T.Arro 
     <$> valid ctx a 
     <*> valid ctx b
-  R.TVar n -> maybe 
-    (Left $ UndefinedType n)
-    return
-    (lookup n (defs ctx))
+  R.TVar n -> case lookup n (defs ctx) of
+    Just t -> return t
+    Nothing -> Left $ UndefinedType n
   
   {- Sugar -}
   R.Iso ty -> T.Path 
@@ -97,6 +103,10 @@ infer ctx = \case
   R.Def n ty scp -> do
     ty' <- valid ctx ty
     infer (def n ty' ctx) scp
+  R.Def' n a b  scp -> do
+    a' <- valid ctx a
+    b' <- valid ctx b
+    infer (def n (T.Free a' b') ctx) scp
     
   -- Application can only be valid when function is presented as Variable
   R.App f a -> do
