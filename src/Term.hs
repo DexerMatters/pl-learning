@@ -13,8 +13,10 @@ data Tm                   -- t
   | App Tm Tm             -- t t'
   | Let Name Ty Tm Tm     -- let x:T = t ; t'
 
+  | TypeOf Ix
   | Top                   -- TOP
   | Bot                   -- BOT
   | Cons Ty Ty            -- {T ... T'}
   | Uni                   -- {U}
   | Pi Name Ty Ty         -- (x:T) -> T'
+  deriving (Show)

@@ -24,7 +24,9 @@ eval env = \case
     -> eval (eval env t:env) t'
   T.Pi n ty ty'      -- (x:T) -> T'
     -> V.Pi n (eval env ty) $ Closure env ty'
-      
+  T.TypeOf l -> env !! l
+    
+
 
 ($$) :: Closure -> Val -> Val
 (Closure env tm) $$ v = eval (v:env) tm

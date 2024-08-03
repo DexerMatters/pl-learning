@@ -1,0 +1,4 @@
+let poly :: x:{⊥...⊤} -> typeof x 
+          = \x -> x;
+let bot :: {⊥ ... ⊥} = (⊥);
+poly bot

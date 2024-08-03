@@ -11,6 +11,7 @@ import qualified Value as V (Val(..))
 import Raw (Name)
 import Eval (eval, ($$))
 import Control.Monad (unless, when)
+import Debug.Trace (trace)
 
 data TypeError 
     = BadConversion VTy VTy
@@ -18,6 +19,7 @@ data TypeError
     | CannotInfer
     | UnboundVariable
     | NotAFunction
+    deriving Show
 
 type Result = Either TypeError
 
@@ -28,6 +30,9 @@ data Ctx = Ctx {
   , sigs :: [(Name, VTy)]
   , lvl  :: Int
 }
+
+tr :: Show a => a -> a
+tr a = trace (show a) a
 
 emptyCtx :: Ctx
 emptyCtx = Ctx [] [] 0
@@ -81,8 +86,6 @@ infer ctx = \case
   R.Cons a b -> do
     (ta, va) <- infer ctx a
     (tb, vb) <- infer ctx b
-    unless (sub ctx va vb) 
-      (Left $ BadConversion va vb)
     pure (T.Cons ta tb, iso (V.Cons va vb))
   R.Pi x ta tb -> do
     tta <- check ctx ta uni -- check ta a type term
@@ -92,9 +95,25 @@ infer ctx = \case
     let cls = Closure (vals ctx') ttb
     return 
       (T.Pi x tta ttb, iso $ V.Pi x vta cls)
-  
+  R.ConstPi ta tb -> do
+    tta <- check ctx ta uni
+    let vta = eval (vals ctx) tta
+    ttb <- check ctx tb uni
+    let cls = Closure (vals ctx) ttb
+    return 
+      (T.Pi "" tta ttb, iso $ V.Pi "" vta cls)  -- bound name is trival
+  R.TypeOf t -> do
+    (tt, vt) <- infer ctx t
+    case vt of
+      V.Var l -> return (T.TypeOf l, eval (vals ctx) tt)
+      _ -> return (tt, iso vt)
   -- Below are terms that behave as values
   R.Lam {} -> Left CannotInfer
+  R.Cast ty tm -> do
+    tty <- check ctx ty uni
+    let vty = eval (vals ctx) tty
+    ttm <- check ctx tm vty
+    return (ttm, vty)
   R.Var n -> 
     let go _ [] = Left UnboundVariable
         go i ((n', ty):rest)
@@ -113,6 +132,6 @@ infer ctx = \case
     let vty = eval (vals ctx) tty
     tt <- check ctx t vty
     let vt = eval (vals ctx) tt
-    let ctx' = define x vty vt ctx
+    let ctx' = define x vt vty ctx
     (tscp, vscp) <- infer ctx' scp
     return (T.Let x tty tt tscp, vscp)
