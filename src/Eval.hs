@@ -14,6 +14,7 @@ eval env = \case
   T.Uni -> uni
   T.Cons ty ty' 
     -> V.Cons (eval env ty) (eval env ty')
+  T.Con n -> V.Con n
   T.Var x -> env !! x
   T.Lam n body
     -> V.Lam n $ Closure env body
@@ -25,6 +26,8 @@ eval env = \case
   T.Pi n ty ty'      -- (x:T) -> T'
     -> V.Pi n (eval env ty) $ Closure env ty'
   T.TypeOf l -> env !! l
+  T.Def n _ n' scp
+    -> eval (V.Con n:V.Con n':env) scp
     
 
 

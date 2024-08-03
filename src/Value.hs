@@ -19,6 +19,7 @@ data Val                    -- t
   | Bot                     -- BOT
   | Cons Val Val            -- {T ... T'}
   | Pi Name Val Closure     -- (x:T) -> T'
+  | Con Name                -- X
 
 instance Show Val where
   show :: Val -> String
@@ -28,3 +29,4 @@ instance Show Val where
   show Bot = "⊥"
   show (Cons v1 v2) = "{" ++ show v1 ++ "..." ++ show v2 ++"}"
   show (Pi n v _) = n ++ ":" ++ show v ++ "->" ++ "<Closure>"
+  show (Con n) = n

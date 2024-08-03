@@ -11,6 +11,7 @@ data Tm                   -- t
   | Lam Name Tm           -- \x.t
   | App Tm Tm             -- t t'
   | Let Name Ty Tm Tm     -- let x::T = t ; t'
+  | Def Name Ty Name Tm   -- def X::T = N ; t'
   
   | Cast Ty Tm            -- [T]t
   | Top                   -- TOP

@@ -1,4 +1,6 @@
-let poly :: x:{⊥...⊤} -> typeof x 
-          = \x -> x;
-let bot :: {⊥ ... ⊥} = (⊥);
-poly bot
+def A :: {U} = a;
+def C :: {U} = c;
+def B :: {A...C} = b;
+def D :: {A...B} = d;
+let id :: T:{A...C} -> T = \x -> x;
+id d

@@ -41,22 +41,22 @@ brace p =symbol "{" *> p <* symbol "}"
 
 -- AST Parsers
 
-pVar, pCast, pLam, pLet, pApp, pCons, pConstPi, pPi, pTypeof :: Parser Tm
+pVar, pCast, pLam, pLet, pApp, pCons, pConstPi, pPi, pTypeof, pDef :: Parser Tm
 pVar = Var <$> var
 
-pCast = Cast <$> bracket (pTm' 0) <*> pTm 3
+pCast = Cast <$> bracket (pTm' 0) <*> pTm 5
 
 pLam = Lam 
   <$> (symbol "\\" *> var)
-  <*> (symbol "->" *> pTm 1)
+  <*> (symbol "->" *> pTm 2)
 
 pLet = Let
   <$> (symbol "let" *> var)   -- bound name
   <*> (symbol "::" *> pTm' 0)  -- type
-  <*> (symbol "=" *> pTm 1)   -- value
+  <*> (symbol "=" *> pTm 2)   -- value
   <*> (symbol ";" *> pTm 0)   -- scope
 
-pApp = App <$> (pTm 4 <* ws) <*> pTm 3
+pApp = App <$> (pTm 5 <* ws) <*> pTm 4
 
 
 pCons = brace $ Cons <$> pTm' 3 <*> (symbol "..." *> pTm' 3)
@@ -68,12 +68,19 @@ pPi = Pi
 
 pConstPi = ConstPi <$> pTm' 1 <*> (symbol "->" *> pTm' 0)
 
-pTypeof = TypeOf <$> (symbol "typeof" *> pTm 3)
+pTypeof = TypeOf <$> (symbol "typeof" *> pTm 4)
+
+pDef = Def
+  <$> (symbol "def" *> var)   -- type name
+  <*> (symbol "::" *> pTm' 0) -- type of type
+  <*> (symbol "=" *> var)   -- value
+  <*> (symbol ";" *> pTm 0)   -- scope
 
 pTm :: Int -> Parser Tm
 pTm i = choice $ paren (pTm 0 <|> pTm' 0):drop i
   [
     pLet 
+  , pDef
   , try pLam
   , pTypeof
   , try pApp

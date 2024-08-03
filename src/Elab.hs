@@ -87,6 +87,7 @@ infer ctx = \case
     (ta, va) <- infer ctx a
     (tb, vb) <- infer ctx b
     pure (T.Cons ta tb, iso (V.Cons va vb))
+
   R.Pi x ta tb -> do
     tta <- check ctx ta uni -- check ta a type term
     let vta = eval (vals ctx) tta  -- ta may also contain programs
@@ -127,7 +128,7 @@ infer ctx = \case
         tb <- check ctx b vb'
         return (T.App ta tb, body $$ eval (vals ctx) tb)
       _ -> Left NotAFunction
-  R.Let x ty t scp -> do  -- let x:ty = t; scp
+  R.Let x ty t scp -> do  -- let x::ty = t; scp
     tty <- check ctx ty uni
     let vty = eval (vals ctx) tty
     tt <- check ctx t vty
@@ -135,3 +136,10 @@ infer ctx = \case
     let ctx' = define x vt vty ctx
     (tscp, vscp) <- infer ctx' scp
     return (T.Let x tty tt tscp, vscp)
+  R.Def n ty n' scp -> do  -- def n::ty = n'; scp
+    tty <- check ctx ty uni
+    let vty = eval (vals ctx) tty
+    let ctx' = define n (V.Var (lvl ctx)) vty ctx
+    let ctx'' = define n' (V.Con n') (V.Var (lvl ctx)) ctx'
+    (tscp, vscp) <- infer ctx'' scp
+    return (T.Def n tty n' tscp, vscp)
