@@ -17,7 +17,7 @@ data TypeError
     = BadConversion VTy VTy
     | BadConstraint VTy VTy
     | CannotInfer
-    | UnboundVariable
+    | UnboundVariable Name
     | NotAFunction
     deriving Show
 
@@ -50,17 +50,20 @@ sub ctx = curry $ \case
   (V.Bot, _) -> True
   (V.Cons t u, V.Cons t' u') 
     -> sub ctx t' t && sub ctx u u'
+  (V.Con n, V.Con n')
+    -> n == n' 
+    || case (lookup n (sigs ctx), lookup n' (sigs ctx)) of
+        (Just a, Just b) -> sub ctx a b
+        _ -> error "Never reach"
   (V.Pi _ ty body, V.Pi _ ty' body')
     -> sub ctx ty' ty 
     && let r = body $$ V.Var (lvl ctx)
     in let r' = body' $$ V.Var (lvl ctx)
     in sub ctx r r'
-  (V.Var l, V.Var l')
-    -> sub ctx (vals ctx !! l) (vals ctx !! l')
-  (V.Var l, a)
-    -> sub ctx (vals ctx !! l) a
-  (a, V.Var l)
-    -> sub ctx a (vals ctx !! l)
+  (V.Var _, _)
+    -> True
+  (_, V.Var _)
+    -> True
   _ -> False
 
 check :: Ctx -> R.Tm -> VTy -> Result T.Tm
@@ -116,7 +119,7 @@ infer ctx = \case
     ttm <- check ctx tm vty
     return (ttm, vty)
   R.Var n -> 
-    let go _ [] = Left UnboundVariable
+    let go _ [] = Left (UnboundVariable n)
         go i ((n', ty):rest)
           | n' == n = return (T.Var i, ty)
           | otherwise = go (i + 1) rest
@@ -139,7 +142,7 @@ infer ctx = \case
   R.Def n ty n' scp -> do  -- def n::ty = n'; scp
     tty <- check ctx ty uni
     let vty = eval (vals ctx) tty
-    let ctx' = define n (V.Var (lvl ctx)) vty ctx
-    let ctx'' = define n' (V.Con n') (V.Var (lvl ctx)) ctx'
+    let ctx' = define n (V.Con n) vty ctx
+    let ctx'' = define n' (V.Con n') (V.Con n) ctx'
     (tscp, vscp) <- infer ctx'' scp
     return (T.Def n tty n' tscp, vscp)

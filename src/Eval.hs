@@ -27,7 +27,7 @@ eval env = \case
     -> V.Pi n (eval env ty) $ Closure env ty'
   T.TypeOf l -> env !! l
   T.Def n _ n' scp
-    -> eval (V.Con n:V.Con n':env) scp
+    -> eval (V.Con n':V.Con n:env) scp
     
 
 
