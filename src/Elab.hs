@@ -1,5 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
-module Elaborator where
+module Elab where
 import Terms
 import Eval (($$), eval)
 
