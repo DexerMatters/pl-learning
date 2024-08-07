@@ -7,7 +7,10 @@ type Ix = Int
 type Lvl = Int
 
 data Raw
-  = RU                      -- U
+  = RTop
+  | RBot
+  | RPath Raw Raw
+  | RTyOf Raw
   | RVar Name               -- x
   | RLam Name Raw           -- \x -> t
   | RApp Raw Raw            -- t u
@@ -18,7 +21,10 @@ data Raw
 type Ty = Tm
 
 data Tm
-  = U
+  = Top
+  | Bot
+  | Path Tm Tm
+  | TyOf Val
   | Var Ix
   | Lam Name Tm
   | App Tm Tm
@@ -32,8 +38,10 @@ type Env = [Val]
 data Cls = Cls Env Tm
 
 data Val
-  = VU
-  | VVar Lvl
+  = VTop
+  | VBot
+  | VPath Val Val
+  | VVar Lvl Val
   | VLam Name Cls
   | VApp Val Val
   | VPi Name VTy Cls

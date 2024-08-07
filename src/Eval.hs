@@ -6,7 +6,10 @@ import Terms
 
 eval :: Env -> Tm -> Val
 eval env = \case
-  U -> VU
+  Top -> VTop
+  Bot -> VBot
+  Path s u -> VPath (eval env s) (eval env u)
+  TyOf v -> v
   Var x -> env !! x
   Lam n t -> VLam n (Cls env t)
   App t t' -> case (eval env t, eval env t') of
