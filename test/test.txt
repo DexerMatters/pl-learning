@@ -1,0 +1,2 @@
+let id :: X:{U} -> x:X -> typeof x = \T -> \v -> v;
+id (Bot)

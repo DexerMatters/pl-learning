@@ -28,7 +28,7 @@ library
       Elab
       Eval
       Lib
-      Parsing
+      Parse
       Terms
       Utils
   other-modules:
